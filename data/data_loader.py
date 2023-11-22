@@ -70,6 +70,7 @@ def load_malaga():
         - "Images" -> Images (Nx640x480) [numpy.ndarray]
         - "K" -> K matrix (3x3) [numpy.ndarray]
         - "Num_Images" -> Number of images [int]
+        - "GPS" -> GPS data (Nx3) [numpy.ndarray]
 
     """
 
@@ -77,20 +78,32 @@ def load_malaga():
     malaga_image_path = os.path.join(malaga_path, 'malaga-urban-dataset-extract-07_rectified_800x600_Images')
     assert 'malaga_path' in locals(), "malaga_path variable is not defined"
 
+    # Load the images
     images = [cv2.imread(os.path.join(malaga_image_path, filename), cv2.IMREAD_GRAYSCALE) for filename in os.listdir(malaga_image_path) if filename.endswith('left.jpg')]
     images = np.array(images)
     
     num_of_images = len(images)
 
+    # K matrix
     K = np.array([[621.18428, 0, 404.0076],
                   [0, 621.18428, 309.05989],
                   [0, 0, 1]])
+    
+    # Load GPS data (Get Timestamps and Local Position)
+    gps_path = os.path.join(malaga_path, 'malaga-urban-dataset-extract-07_all-sensors_GPS.txt')
+    gps_data = np.loadtxt(gps_path, skiprows=1, usecols=(0, 8, 9))
+
+    # Load IMU data (Get Timestamps, XYZ Acceleration and Angular Velocity)
+    imu_path = os.path.join(malaga_path, 'malaga-urban-dataset-extract-07_all-sensors_IMU.txt')
+    imu_data = np.loadtxt(imu_path, skiprows=1, usecols=(0, 1, 2, 3, 4, 5, 6))
     
     # Build the dictionary
     out = {
         "Images": images,
         "K": K,
-        "Num_Images": num_of_images
+        "Num_Images": num_of_images,
+        "GPS": gps_data,
+        "IMU": imu_data
     }
 
     return out
