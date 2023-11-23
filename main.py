@@ -16,18 +16,37 @@ print(f"Parent Path: {parent_path}")
 
 if ds == 0:
     print("Loading KITTI")
-    K, ground_truth, last_frame = load_kitti()
+
+    data = load_kitti()
+    images = data["Images"]
+    K = data["K"]
+    homogeneous_pose_mat = data["Homegeneous_Pose_Mat"]
+    num_images = data["Num_Images"]
+
     print("Finished loading")
+
 elif ds == 1:
     print("Loading Malaga")
-    K, left_images, last_frame = load_malaga()
+
+    data = load_malaga()
+    images = data["Images"]
+    K = data["K"]
+    num_images = data["Num_Images"]
+
     print("Finished loading")
 elif ds == 2:
     print("Loading Parking")
-    K, ground_truth, last_frame = load_parking()
+
+    data = load_parking()
+
+    images = data["Images"]
+    K = data["K"]
+    homogeneous_pose_mat = data["Homegeneous_Pose_Mat"]
+    num_images = data["Num_Images"]
+
     print("Finished loading")
 else:
     assert False
 
 # Print the K matrix to see if the code works properly
-print(len(left_images))
+print(len(images))
