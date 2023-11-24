@@ -1,3 +1,4 @@
 env_VO/
 .gitignore
 test.ipynb
+__pycache__/

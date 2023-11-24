@@ -20,7 +20,7 @@ def load_kitti() -> (np.ndarray, np.ndarray, int):
         Dict: A dictionary containing the keys:
         - "Images" -> Images (Nx640x480) [numpy.ndarray]
         - "K" -> K matrix (3x3) [numpy.ndarray]
-        - "Homegeneous_Pose_Mat" -> Ground truth Homogeneous Pose Matrices (Nx4x4) [numpy.ndarray]
+        - "Homogeneous_Pose_Mat" -> Ground truth Homogeneous Pose Matrices (Nx4x4) [numpy.ndarray]
         - "Num_Images" -> Number of images [int]
 
     """
@@ -55,7 +55,7 @@ def load_kitti() -> (np.ndarray, np.ndarray, int):
     out = {
         "Images": images,
         "K": K,
-        "Homegeneous_Pose_Mat": ground_truth_homogeneous,
+        "Homogeneous_Pose_Mat": ground_truth_homogeneous,
         "Num_Images": num_of_images
     }
 
@@ -118,7 +118,7 @@ def load_parking():
         Dict: A dictionary containing the keys:
         - "Images" -> Images (Nx640x480) [numpy.ndarray]
         - "K" -> K matrix (3x3) [numpy.ndarray]
-        - "Homegeneous_Pose_Mat" -> Ground truth Homogeneous Pose Matrices (Nx4x4) [numpy.ndarray]
+        - "Homogeneous_Pose_Mat" -> Ground truth Homogeneous Pose Matrices (Nx4x4) [numpy.ndarray]
         - "Num_Images" -> Number of images [int]
 
     """
@@ -160,7 +160,7 @@ def load_parking():
     out = {
         "Images": images,
         "K": K,
-        "Homegeneous_Pose_Mat": ground_truth_homogeneous,
+        "Homogeneous_Pose_Mat": ground_truth_homogeneous,
         "Num_Images": num_of_images
     }
 
