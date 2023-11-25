@@ -3,6 +3,10 @@ import numpy as np
 import cv2
 from scipy.optimize import least_squares
 
+# Internal Imports
+from point_cloud import Point_Cloud
+from pose import Pose
+
 class Visual_Odometry:
     """
     
@@ -42,10 +46,21 @@ class Visual_Odometry:
         """
         # Find the matches between the two images
         src_pts, dst_pts, src_des, dst_des = self.find_matches(image_1, image_2)
+
+        # Get the pose of the second image (This also updates src_pts and dst_pts to only contain the inlier points)
         T = self.get_pose(src_pts, dst_pts)
 
         # Get the 3D points
         points_3d = self.get_3d_points(src_pts, dst_pts, T)
+
+        # Build Pose
+        pose = Pose(T, points_3d, src_pts)
+
+        # Build Point Cloud
+        point_cloud = Point_Cloud()
+        point_cloud.add_points(points_3d, src_des, pose)
+
+
         return points_3d, T
 
         
@@ -94,7 +109,7 @@ class Visual_Odometry:
     def get_3d_points(self, q1:np.ndarray, q2:np.ndarray, T:np.ndarray) -> np.ndarray:
 
         """
-        Computes the 3D points from the matched points q1 and q2 and the homogeneous transformation matrix T of 
+        Computes the 3D points (defined in reference frame 1) from the matched points q1 and q2 and the homogeneous transformation matrix T of 
         the second pose (in which the q2 points are defined).
 
         Args:
@@ -121,7 +136,7 @@ class Visual_Odometry:
 
         return points_3d
             
-    def get_pose(self, q1:np.ndarray, q2:np.ndarray) -> np.ndarray:
+    def get_pose(self, q1:np.ndarray, q2:np.ndarray) -> np.ndarray, np.ndarray, np.ndarray:
         """
         Computes the pose of the second camera frame with respect to the first camera frame (Using the the 5 point algorithm).
 
@@ -143,8 +158,8 @@ class Visual_Odometry:
         R1, R2, t = cv2.decomposeEssentialMat(E)
 
         # Update the inlier points
-        q1[inliers_mask.ravel() == 1]
-        q2[inliers_mask.ravel() == 1]
+        q1 = q1[inliers_mask.ravel() == 1]
+        q2 = q2[inliers_mask.ravel() == 1]
 
         # Get the correct pose from the 4 possible poses (using Least Square Approximation)
         T = self._get_correct_pose(R1, R2, t, q1, q2)
@@ -207,8 +222,6 @@ class Visual_Odometry:
                 best_T = T
 
         return best_T
-
-
             
     def get_pose_refinement(self, q1:np.ndarray, q2:np.ndarray, T:np.ndarray) -> np.ndarray:
 
