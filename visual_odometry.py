@@ -249,8 +249,7 @@ class Visual_Odometry:
     def get_pose_refinement(self, q1:np.ndarray, q2:np.ndarray, T:np.ndarray) -> np.ndarray:
 
         """
-        Refines the pose using Reprojection Error (Levenberg-Marquardt).
-        TODO: Implement other error metrics (e.g. Epipolar Line Distance, etc)
+        Refines the pose using either Reprojection Error or Epipolar Line Distance (Levenberg-Marquardt).
 
         Args:
             q1 (numpy.ndarray) (Nx2): The image points of the matched features in the first image.
@@ -265,6 +264,7 @@ class Visual_Odometry:
 
         # Refine the pose using non-linear least squares
         func = self._get_squared_reprojection_error_func(q1, q2)
+        # Alternative: func = self._get_epipolar_line_point_error_func(q1, q2)
 
         # Format the initial guess as a 1-D array
         r_vec = cv2.Rodrigues(T[:3,:3])[0]
@@ -337,6 +337,69 @@ class Visual_Odometry:
 
         return func
 
-    
+    def _get_epipolar_line_point_error_func(self, q1, q2):
+        """
+        Returns a function that calculates the sum of squared epipolar line to point distances error of set of points q1 and q2, and the homogeneous transformation matrix.
+
+        The return function receives a 1-D array (x) of the parameters of the transformation matrix and returns a 1-D array of the residuals.
+
+        The first 3 parameters of x are the rotation vector (r_vec) and the last 3 parameters are the translation vector (t_vec).
+
+        Args:
+            q1 (numpy.ndarray) (Nx2): The image points of the matched features in the first image.
+            q2 (numpy.ndarray) (Nx2): The image points of the matched features in the second image.
+
+        Returns:
+            func (function): A function that calculates the sum of squared epipolar line to point distances error.
+
+        """
+        K = self.K
+
+        def func(x):
+            """
+            Calculates the sum of squared epipolar line to point distances error of set of points q1 and q2, with the homogeneous transformation matrix.
+
+            Args:
+                x (numpy.ndarray) (6): The parameters of the transformation matrix.
+                Where x[:3] are the rotation vector (r_vec) and x[3:] are the translation vector (t_vec).
+
+            Returns:
+                residual (numpy.ndarray) (2*N): The sum of squared epipolar line to point distances error of the points.
+
+            """
+            # Build R and t from x
+            R = cv2.Rodrigues(x[:3])[0]
+            t = x[3:].reshape(-1, 1)
+
+            # Build skew symmetric matrix from t
+            tx = np.array([[0, -t[2], t[1]], [t[2], 0, -t[0]], [-t[1], t[0], 0]])
+
+            # Build E and F
+            E = tx @ R
+            F = np.linalg.inv(K) @ E @ np.linalg.inv(K)
+
+            # Homogeneous coordinates of keypoints
+            q1_homogeneous = np.hstack(q1, np.ones((q1.shape[0], 1)))
+            q2_homogeneous = np.hstack(q2, np.ones((q2.shape[0], 1)))
+
+            # Compute the epipolar lines
+            lines1 = np.dot(F, q2_homogeneous.T).T
+            lines2 = np.dot(F, q1_homogeneous.T).T
+
+            # Extract coefficients of the epipolar lines
+            a1, b1, c1 = lines1[:, 0], lines1[:, 1], lines1[:, 2]
+            a2, b2, c2 = lines2[:, 0], lines2[:, 1], lines2[:, 2]
+
+            # Compute sum of squared distances
+            sum_squared_distances_1 = np.sum((a1 * q1[:, 0] + b1 * q1[:, 1] + c1) ** 2 / (a1 ** 2 + b1 ** 2))
+            sum_squared_distances_2 = np.sum((a2 * q2[:, 0] + b2 * q2[:, 1] + c2) ** 2 / (a2 ** 2 + b2 ** 2))
+
+            # Create 1-D residual vector
+            residual = np.concatenate((sum_squared_distances_1.ravel(), sum_squared_distances_2.ravel()))
+
+            return residual
+
+        return func
+
     def pose_RT(self, R,t):
         return np.concatenate((np.concatenate((R, t.reshape(-1,1)), axis=1), np.array([0, 0, 0, 1]).reshape(1,-1)), axis=0)
