@@ -47,11 +47,23 @@ class Visual_Odometry:
         # Find the matches between the two images
         src_pts, dst_pts, src_des, dst_des = self.find_matches(image_1, image_2)
 
-        # Get the pose of the second image (This also updates src_pts and dst_pts to only contain the inlier points)
-        T = self.get_pose(src_pts, dst_pts)
+        # Get the pose of the second image
+        T, inlier_mask = self.get_pose(src_pts, dst_pts)
+   
+
+        # Update the points to only contain the inlier points
+        src_pts = src_pts[inlier_mask.ravel() == 1]
+        dst_pts = dst_pts[inlier_mask.ravel() == 1]
+        src_des = src_des[inlier_mask.ravel() == 1]
+        dst_des = dst_des[inlier_mask.ravel() == 1]
 
         # Get the 3D points (in the first camera frame)
         points_3d = self.get_3d_points(src_pts, dst_pts, T)
+
+        # Remove points that are too far away
+        MAX_DISTANCE = 300 #TODO: Make this a parameter that can be set by the user
+        points_3d_distance = np.linalg.norm(points_3d, axis=1)
+        points_3d = points_3d[points_3d_distance < MAX_DISTANCE]
 
         # Build Pose
         pose = Pose(T, points_3d, src_pts)
@@ -59,8 +71,8 @@ class Visual_Odometry:
         # Build Point Cloud
         point_cloud = Point_Cloud(points_3d, src_des, descriptor_size=src_des.shape[1])
 
-        return point_cloud
-
+        return point_cloud, (src_pts, dst_pts, src_des, dst_des, pose)
+    
         
     def find_matches(self, img_1: np.ndarray, img_2: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
         """
@@ -151,23 +163,37 @@ class Visual_Odometry:
         # Get essential matrix
         E, inliers_mask = cv2.findEssentialMat(q1, q2, K, cv2.RANSAC, 0.999, 1.0) #NOTE: Make the parameters be set by the user
         
-        # Decompose the essential matrix to get the possible poses
-        # TODO: Check cv.recoverPose() function. This seems to do everything that is done here.
-        R1, R2, t = cv2.decomposeEssentialMat(E)
-
         # Update the inlier points
         q1 = q1[inliers_mask.ravel() == 1]
         q2 = q2[inliers_mask.ravel() == 1]
-
+        
+        # Decompose the essential matrix to get the possible poses
+        # TODO: Check cv.recoverPose() function. This seems to do everything that is done here.
+        R1, R2, t = cv2.decomposeEssentialMat(E)
         # Get the correct pose from the 4 possible poses (using Least Square Approximation)
-        T = self._get_correct_pose(R1, R2, t, q1, q2)
+        T, mask = self._get_correct_pose(R1, R2, t, q1, q2)
+
+        print(mask.shape, mask.sum(), mask.sum()/mask.shape[0])
+        # g, R, t, mask = cv2.recoverPose(E, q1, q2)
+        # print("R: ", R)
+        # print("t: ", t)
+        # print("g: ", g)
+        # print("mask: ", (mask==255).sum())
+
+        # T = self.pose_RT(R,t)
+
+        # Update inlier mask
+        inliers_mask[inliers_mask == 1] = mask.ravel()
+        # Update the inlier points
+        q1 = q1[mask.ravel() == 1]
+        q2 = q2[mask.ravel() == 1]
 
         # Apply non-linear refinement
         NON_LINEAR_REFINEMENT = True #TODO: Make this a parameter that can be set by the user
         if NON_LINEAR_REFINEMENT:
             T = self.get_pose_refinement(q1, q2, T)
 
-        return T
+        return T, inliers_mask
 
     def _get_correct_pose(self, R1:np.ndarray, R2:np.ndarray, t:np.ndarray, q1:np.ndarray, q2:np.ndarray) -> np.ndarray:
         """
@@ -202,9 +228,7 @@ class Visual_Odometry:
             P2 = K @ T[:3, :]
 
             # Triangulate the points
-            n = 10 # Number of points to triangulate
-            n_ = n if n <= q1.shape[0] else q1.shape[0]  
-            points_4d_1 = cv2.triangulatePoints(P1, P2, q1[:n_].T, q2[:n_].T) # Homogeneous coordinates in the first camera frame
+            points_4d_1 = cv2.triangulatePoints(P1, P2, q1.T, q2.T) # Homogeneous coordinates in the first camera frame
             points_4d_2 = T @ points_4d_1 # Homogeneous coordinates in the second camera frame
 
             # Convert to un-homogeneous coordinates
@@ -212,14 +236,15 @@ class Visual_Odometry:
             points_4d_2 = points_4d_2 / points_4d_2[3]
 
             # Find number of points with positive depth
-            n_points = np.sum(points_4d_1[2] > 0) + np.sum(points_4d_2[2] > 0)
+            inliers_mask = np.logical_and(points_4d_1[2] > 0, points_4d_2[2] > 0)
+            n_points = np.sum(inliers_mask)
 
             # Update to the transformation with the most points with positive depth
             if n_points > max_points:
                 max_points = n_points
                 best_T = T
 
-        return best_T
+        return best_T, inliers_mask
             
     def get_pose_refinement(self, q1:np.ndarray, q2:np.ndarray, T:np.ndarray) -> np.ndarray:
 
@@ -252,6 +277,8 @@ class Visual_Odometry:
         # Build the final transformation matrix
         R = cv2.Rodrigues(res.x[:3])[0]
         t = res.x[3:]
+        
+        T = np.eye(4)
         T[:3,:3] = R
         T[:3,3] = t
         
@@ -309,3 +336,7 @@ class Visual_Odometry:
             return residual
 
         return func
+
+    
+    def pose_RT(self, R,t):
+        return np.concatenate((np.concatenate((R, t.reshape(-1,1)), axis=1), np.array([0, 0, 0, 1]).reshape(1,-1)), axis=0)
