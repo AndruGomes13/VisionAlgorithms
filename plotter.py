@@ -2,7 +2,7 @@
 import cv2
 import matplotlib.pyplot as plt
 import numpy as np
-import networkx as nx
+# import networkx as nx #NOTE: I just removed this because it was giving me an error and we don't need it yet.
 import time
 
 

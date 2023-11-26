@@ -50,18 +50,16 @@ class Visual_Odometry:
         # Get the pose of the second image (This also updates src_pts and dst_pts to only contain the inlier points)
         T = self.get_pose(src_pts, dst_pts)
 
-        # Get the 3D points
+        # Get the 3D points (in the first camera frame)
         points_3d = self.get_3d_points(src_pts, dst_pts, T)
 
         # Build Pose
         pose = Pose(T, points_3d, src_pts)
 
         # Build Point Cloud
-        point_cloud = Point_Cloud()
-        point_cloud.add_points(points_3d, src_des, pose)
+        point_cloud = Point_Cloud(points_3d, src_des, descriptor_size=src_des.shape[1])
 
-
-        return points_3d, T
+        return point_cloud
 
         
     def find_matches(self, img_1: np.ndarray, img_2: np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray, np.ndarray):
@@ -136,7 +134,7 @@ class Visual_Odometry:
 
         return points_3d
             
-    def get_pose(self, q1:np.ndarray, q2:np.ndarray) -> np.ndarray, np.ndarray, np.ndarray:
+    def get_pose(self, q1:np.ndarray, q2:np.ndarray) -> (np.ndarray, np.ndarray, np.ndarray):
         """
         Computes the pose of the second camera frame with respect to the first camera frame (Using the the 5 point algorithm).
 
