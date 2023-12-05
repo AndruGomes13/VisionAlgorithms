@@ -22,6 +22,10 @@ class Plotter:
 
 
     def plot_pointcloud_3d(self, pointCloud): # TODO: pointcloud Object assert, Current placeholders for pointcloud object
+        '''
+        Inputs: A pointcloud object made of [[x,y,z,dist],[]...]
+        Shows an image
+        '''
         x = pointCloud[:,0]
         y = pointCloud[:,1]
         z = pointCloud[:,2]
@@ -36,6 +40,10 @@ class Plotter:
 
 
     def plot_pointcloud_topdown(self, pointCloud):
+        '''
+        Inputs: A pointcloud object made of [[x,y,z,dist], []..]
+        Shows an image
+        '''
         x = pointCloud[:,0]
         y = pointCloud[:,1]
         z = pointCloud[:,2]
@@ -48,8 +56,57 @@ class Plotter:
 
         plt.show()
 
+    def plot_overlay(self, img, features):
+        '''
+        Inputs: img: the image as a video_dataset[index]. I.e. the full image is passed to the method.
+                features: the features as a list of [u,v] coordinates. 
+        '''
+        raise NotImplementedError   
+    
+    def plot_overlay_3d(self, img, features, proj_mat):
+        '''
+        Inputs: img: the image as a video_dataset[index]. I.e. the full image is passed to the method.
+                features: the features as a list of [x,y,z] coordinates.  Projected in the 3d world frame. 
+                proj_mat: the 3d -> to uv projection matrix. 
+        '''
 
-    def plot_path(self, poses):
-        print("These are the poses!")
+        raise NotImplementedError
+
+
+    def plot_tracked_features(self, img, features):
+        print("I am printing the tracked features!")
+
+        raise NotImplementedError
+
+    
+
+
+    def plot_path_global(self, poses):
+        '''
+        Inputs: list of poes, in the global frame. 
+        Shows an image. 
+        '''
+        raise NotImplementedError
+
+    def plot_path_local(self, poses):
+        '''
+        Inputs: list of poes, in the global frame. 
+        Shows an image. 
+        '''
+        raise NotImplementedError
+    
+class Error:
+    def __init__(self) -> None:
+        self.ground_truth = []
+        self.estimate_short_horizon = []
+        self.estimate_global = []
+    
+    def calculate_local_error(self):
+        raise NotImplementedError
+
+    def calculate_global_error(self):
+        raise NotImplementedError
+
+
 
 
