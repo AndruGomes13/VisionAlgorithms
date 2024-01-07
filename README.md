@@ -2,10 +2,6 @@
 
 ## Course Information
 
-![Image of the ETH Zurich logo](https://upload.wikimedia.org/wikipedia/commons/thumb/b/ba/ETH_Zurich_-_Zeichen.svg/250px-ETH_Zurich_-_Zeichen.svg.png){width=200px}
-![Image of the University of Zurich logo](https://upload.wikimedia.org/wikipedia/en/5/57/University_of_Zurich_logo.svg){width=200px}
-
-
 **Institution:** University of Zurich (UZH) and Swiss Federal Institute of Technology (ETH)  
 **Course:** Vision Algorithms for Mobile Robotics  
 **Instructors:** [Instructor Names]
