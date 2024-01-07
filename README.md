@@ -1,5 +1,26 @@
-# VisualAlgosProject
+# Monocular Visual Odometry Project
 
-Important! Please keep your datasets at this level of the folder, but make sure to never commit them! To avoid overbearing github. I.e. assume that all EXTRACTED DATASETS will exist at the same level as the readme.md and the project pdf, but make sure to not actually commit them to github. 
+## Course Information
+**Institution:** University of Zurich (UZH) and Swiss Federal Institute of Technology (ETH)  
+**Course:** Vision Algorithms for Mobile Robotics  
+**Instructors:** [Instructor Names]
 
-Cheers, J
+## Project Overview
+This project is a part of the Vision Algorithms for Mobile Robotics course, focusing on implementing and understanding the fundamentals of monocular visual odometry. The goal is to develop an algorithm capable of estimating the 3D motion of a single camera moving through a static environment. This technique is critical in the domains of robotics and autonomous vehicles, where understanding the movement relative to the environment is crucial.
+
+## Objectives
+- Implement feature detection, matching, and tracking.
+- Estimate camera motion from a sequence of images.
+- Understand the principles of monocular visual odometry and its applications.
+
+## Installation
+
+### Prerequisites
+- Python 3.x
+- OpenCV
+- Numpy
+
+### Setup
+1. Clone the repository:
+   ```sh
+   git clone [repository URL]
