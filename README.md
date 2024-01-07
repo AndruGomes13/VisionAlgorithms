@@ -56,4 +56,4 @@ pip install -r requirements.txt
 6. **Figure instructions:** When the first figure is shown, press 'c' to initialize the continuous plotting. Press 'q' to break and display the estimated trajectory.
 
 
-The script will process the specified image sequence, displaying in subplots important information being processed in real time. After the real time plotting, the script will display the estimated camera trajectory together with the ground truth, if available, to assess the accuracy of the pipeline. 
+The script will process the specified image sequence, displaying in subplots important information being processed in real time. After that, the script will display the estimated camera trajectory together with the ground truth, if available, to assess the accuracy of the pipeline. 
