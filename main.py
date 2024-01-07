@@ -5,6 +5,7 @@ import os
 import numpy as np
 import cv2
 import matplotlib
+matplotlib.use('TkAgg') 
 import matplotlib.pyplot as plt
 import threading
 from IPython.display import display, clear_output
@@ -14,12 +15,12 @@ from data.data_loader import load_kitti, load_malaga, load_parking, loading_anim
 from visual_odometry import Visual_Odometry
 
 np.set_printoptions(precision=2, suppress=True)
-matplotlib.use('Qt5Agg')
+
 
 
 # Print of initial statements
 print('\n --- Vision Algorithms for Mobile Robotics Mini Project --- ')
-print('Authors: Axel Berbelanne, Andre Gomes, Jose Lavariega, Simone Manni\n')
+print('Authors: Axel Barbelanne, Andre Gomes, Jose Lavariega, Simone Manni\n')
 
 ## Instructions:
 #   - Place the unmodified datasets folders in the 'data' folder
@@ -121,7 +122,6 @@ print('\n3) Continous operation')
 plt.ion()
 fig, plots = vo.setup_plot_all(images[0])
 manager = plt.get_current_fig_manager()
-manager.window.showMaximized()
 
 c_pressed = False  # Initialize a flag to track if 'c' is pressed
 
@@ -235,10 +235,8 @@ plt.pause(4)
 if ds == 0 or ds == 2:
     vo.plot_final_trajectory_ground_truth(trajectory, homogeneous_pose_mat[:len(trajectory)])
     manager = plt.get_current_fig_manager()
-    manager.window.showMaximized()
 elif ds == 1:
     vo.plot_final_trajectory_without_ground_truth(trajectory)
     manager = plt.get_current_fig_manager()
-    manager.window.showMaximized()
 
 plt.show(block=True)
