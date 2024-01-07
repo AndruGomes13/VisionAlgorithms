@@ -4,7 +4,7 @@
 
 **Institution:** University of Zurich (UZH) and Swiss Federal Institute of Technology (ETH)  
 **Course:** Vision Algorithms for Mobile Robotics  
-**Instructors:** [Instructor Names]
+**Instructor:** Prof. Davide Scaramuzza
 
 ## Project Overview
 
@@ -33,21 +33,27 @@ This project is a part of the Vision Algorithms for Mobile Robotics course, focu
 1. **Clone the repository:** Clone the project's repository using the following command:
 
 ```sh
-git clone [repository URL]
-
+git clone https://github.com/JoseLavariega/VisualAlgosProject.git
+```
+2. Install the required packages:
+```sh
 pip install -r requirements.txt
+```
 
 
 ## How to Run
 
-1. **Open the main.py file:** Open the `main.py` file in a text editor.
+1. **Add data:** Place the unmodified image sequences folders inside the 'data' folder
 
-2. **Adjust the image_files list:** Place the unmodified image sequences folders inside the 'data' folder
+2. **Open the main.py file:** Open the `main.py` file in a text editor.
 
-3. **Execute the main script:** Run the following command in the terminal to execute the main script:
+3. **Execute the main script:** Run the  `main.py` and wait for a figure to show up. The waiting time might vary depending on the performance of the computer.
 
-sh
-python main.py
+4.  **Switch dataset:** Locate the 'ds' variable at line 36 of the `main.py` file and change the value between 0, 1, 2 to switch between datasets. 
+
+5.  **Change number of processed images:** Locate the 'n_imgs' variable at line 149 of the `main.py` file and change the value to process less images. 
+
+6. **Figure instructions:** When the first figure is shown, press 'c' to initialize the continuous plotting. Press 'q' to break and display the estimated trajectory.
 
 
-The script will process the specified image sequence and display the estimated camera trajectory and 3D reconstruction.
+The script will process the specified image sequence, displaying in subplots important information being processed in real time. After the real time plotting, the script will display the estimated camera trajectory together with the ground truth, if available, to assess the accuracy of the pipeline. 
