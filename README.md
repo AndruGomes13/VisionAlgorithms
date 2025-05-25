@@ -33,7 +33,7 @@ This project is a part of the Vision Algorithms for Mobile Robotics course, focu
 1. **Clone the repository:** Clone the project's repository using the following command:
 
 ```sh
-git clone https://github.com/JoseLavariega/VisualAlgosProject.git
+git clone https://github.com/AndruGomes13/VisionAlgorithms.git
 ```
 2. Install the required packages:
 ```sh
